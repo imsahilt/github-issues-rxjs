@@ -18,7 +18,10 @@
   "homepage": "https://github.com/imsahilt/github-issues-rxjs#readme",
   "dependencies": {
     "express": "^4.15.4",
+    "express-redis-cache": "^1.0.0",
     "pug": "^2.0.0-rc.3",
+    "redis": "^2.8.0",
+    "request": "^2.81.0",
     "rxjs-es": "^5.0.0-beta.12"
   }
 }

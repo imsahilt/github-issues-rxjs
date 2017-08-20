@@ -27,7 +27,6 @@
     <button id="next-button" class="btn btn-success" style="display: none">
         Next Page
     </button>
-
 </div>
 
 <script type="text/javascript">
@@ -53,7 +52,7 @@
         .flatMap((searchTerm) => {
             page = 1;
             return Rx.Observable.fromPromise(
-                $.get('https://api.github.com/repos/' + searchTerm + '/issues')
+                $.get('https://api.github.com/repos/' + searchTerm + '/issues?page=1')
             ).catch((response) => {
             renderError(response.statusText);
                 return Rx.Observable.empty();
