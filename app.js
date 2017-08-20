@@ -14,7 +14,7 @@ app.get('/', function (req, res) {
 
 app.get('/repo/:author/:repo/get-issues/:page', function (req, res) {
     cache_key = req.params.author + ":" + req.params.repo + ":" + req.params.page
-    
+    var cache_found;
     client.get(cache_key,function (error, entry) {
       if ( error ){
         console.log("key: "+ cache_key +" error occured.");
@@ -22,31 +22,27 @@ app.get('/repo/:author/:repo/get-issues/:page', function (req, res) {
       //handle json parse execptions.
       if(entry){
         res.setHeader('Content-Type', 'application/json');
-        return res.send(JSON.parse(entry));
+        res.send(JSON.parse(entry));
         console.log("key: "+ cache_key +" found and served from cache..")
+        return true;
       }else{
-        console.log("key: "+ cache_key +" not found")
+        var request = require('request');
+        var options = {
+            url: 'https://api.github.com/repos/' + req.params.author+ '/'+ req.params.repo+ '/issues?page='+ req.params.page,
+            headers: {
+                'User-Agent': 'request'
+                }
+            };
+        request(options, function (error, response, body) {
+            //handle status code.
+            client.set(cache_key, JSON.stringify(body));
+            console.log("key: "+ cache_key +"added to cache cache..")
+            res.setHeader('Content-Type', 'application/json');
+            res.send(body);
+        })
+        return false;
       }
     });
-
-
-    // fix exit issue.
-    var request = require('request');
-    var options = {
-        url: 'https://api.github.com/repos/' + req.params.author+ '/'+ req.params.repo+ '/issues?page='+ req.params.page,
-        headers: {
-            'User-Agent': 'request'
-            }
-        };
-    request(options, function (error, response, body) {
-        //handle status code.
-        console.log(error);
-        console.log(response);
-        client.set(cache_key, JSON.stringify(body));
-        console.log("key: "+ cache_key +"added to cache cache..")
-        res.setHeader('Content-Type', 'application/json');
-        res.send(body);
-    })
 })
 
 app.listen(3000, function () {
