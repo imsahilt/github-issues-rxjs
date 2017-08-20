@@ -52,7 +52,8 @@
         .flatMap((searchTerm) => {
             page = 1;
             return Rx.Observable.fromPromise(
-                $.get('https://api.github.com/repos/' + searchTerm + '/issues?page=1')
+                // $.get('https://api.github.com/repos/' + searchTerm + '/issues?page=1')
+                $.get('http://localhost:3000/repo/' + searchTerm + '/get-issues/'+page)
             ).catch((response) => {
             renderError(response.statusText);
                 return Rx.Observable.empty();
@@ -66,7 +67,7 @@
     userClicksNextButton
         .flatMap((searchTerm) => {
             return Rx.Observable.fromPromise(
-                $.get('https://api.github.com/repos/' + searchTerm + '/issues?page='+page)
+                $.get('http://localhost:3000/repo/' + searchTerm + '/get-issues/'+page)
             ).catch((response) => {
             renderError(response.statusText);
                 return Rx.Observable.empty();
