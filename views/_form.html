@@ -24,10 +24,15 @@
     <div id="error" class="well" style="display:none;">
         <p id="error__message" class="text-danger"></p>
     </div>
+    <button id="next-button" class="btn btn-success" style="display: none">
+        Next Page
+    </button>
 
 </div>
 
 <script type="text/javascript">
+    var page = 1;
+    
     let userClicksSearchButton = Rx.Observable.fromEvent(
         $("#search-button"),
         'click'
@@ -36,26 +41,56 @@
         return $("#search-box").val();
     });
 
+    let userClicksNextButton = Rx.Observable.fromEvent(
+        $("#next-button"),
+        'click'
+    )
+    .map((event) => {
+        return $("#search-box").val();
+    });
+
     userClicksSearchButton
         .flatMap((searchTerm) => {
+            page = 1;
             return Rx.Observable.fromPromise(
-                $.get('https://api.github.com/repos/' + searchTerm + '/issues?page=1')
+                $.get('https://api.github.com/repos/' + searchTerm + '/issues')
             ).catch((response) => {
             renderError(response.statusText);
                 return Rx.Observable.empty();
             });
         })
         .subscribe((response) => {
-            dataSet = response.map(function(data) {return [data.title,data.url,data.created_at];});
-            renderIssues(dataSet);
+            page++;
+            renderIssues(buildDataSetFromGithubResponse(response));
         });
+
+    userClicksNextButton
+        .flatMap((searchTerm) => {
+            return Rx.Observable.fromPromise(
+                $.get('https://api.github.com/repos/' + searchTerm + '/issues?page='+page)
+            ).catch((response) => {
+            renderError(response.statusText);
+                return Rx.Observable.empty();
+            });
+        })
+        .subscribe((response) => {
+            page++;
+            renderIssues(buildDataSetFromGithubResponse(response));
+        });
+
+    function buildDataSetFromGithubResponse(response){
+        return response.map(function(data) {return [data.title,data.url,data.created_at];});
+    }
 
     function renderIssues(dataSet){
         $(document).ready(function() {
+            $('#next-button').show();
             $('#results').DataTable( {
                 data: dataSet,
                 destroy: true,
                 pageLength: 30,
+                paging:   false,
+                info:false,
                 columns: [
                     { title: "Issue Title" },
                     { title: "Issue Url" },
