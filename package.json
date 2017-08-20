@@ -1,0 +1,24 @@
+{
+  "name": "github-issues-rxjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imsahilt/github-issues-rxjs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/imsahilt/github-issues-rxjs/issues"
+  },
+  "homepage": "https://github.com/imsahilt/github-issues-rxjs#readme",
+  "dependencies": {
+    "express": "^4.15.4",
+    "pug": "^2.0.0-rc.3",
+    "rxjs-es": "^5.0.0-beta.12"
+  }
+}

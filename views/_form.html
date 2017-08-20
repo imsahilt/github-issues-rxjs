@@ -1,0 +1,73 @@
+<div class="container">
+
+    <!-- Search controls -->
+    <h1>Search Github Users</h1>
+    <div class="form-group">
+        <label for="search-box">
+          Oener/Repo:
+        </label>
+        <input
+            id="search-box"
+            type="text"
+            class="form-control"
+        />
+    </div>
+    <button
+        id="search-button"
+        class="btn btn-primary"
+    >
+        Search
+    </button>
+    <hr />
+    <table id="results" class="display" width="100%"></table>
+
+    <div id="error" class="well" style="display:none;">
+        <p id="error__message" class="text-danger"></p>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    let userClicksSearchButton = Rx.Observable.fromEvent(
+        $("#search-button"),
+        'click'
+    )
+    .map((event) => {
+        return $("#search-box").val();
+    });
+
+    userClicksSearchButton
+        .flatMap((searchTerm) => {
+            return Rx.Observable.fromPromise(
+                $.get('https://api.github.com/repos/' + searchTerm + '/issues?page=1')
+            ).catch((response) => {
+            renderError(response.statusText);
+                return Rx.Observable.empty();
+            });
+        })
+        .subscribe((response) => {
+            dataSet = response.map(function(data) {return [data.title,data.url,data.created_at];});
+            renderIssues(dataSet);
+        });
+
+    function renderIssues(dataSet){
+        $(document).ready(function() {
+            $('#results').DataTable( {
+                data: dataSet,
+                destroy: true,
+                pageLength: 30,
+                columns: [
+                    { title: "Issue Title" },
+                    { title: "Issue Url" },
+                    { title: "Created At" }
+                ]
+            } );
+        } );
+    }
+
+    function renderError(message) {
+        $("#results").hide();
+        $("#error").show();
+        $("#error__message").text("Error: "+message);
+    }
+</script>
